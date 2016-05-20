@@ -5,8 +5,8 @@ Hangman game in Python
 Usage: <python hang_man.py>
 """
 import time
-import numpy as np
-
+#import numpy as np
+import random
 
 words = "python awesome programming language love pronunciation life enjoy grammar pragmatic deride\
             always meaningful creativity sapiens adventure music travel food tennis reading science\
@@ -84,7 +84,7 @@ hang_graphics = [graphic0, graphic1, graphic2, graphic3, graphic4, graphic5, gra
 
 #game settings
 #__________________________________________________________________________________________
-rand_word = np.random.choice(words, 1)[0]
+rand_word = random.choice(words)
 #rand_word = 'alwaysayhay'
 character_remaining = rand_word
 
