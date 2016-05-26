@@ -1,0 +1,214 @@
+__author__ = 'ASM Pushon'
+
+"""
+Hangman game in Python
+Usage: <python hang_man.py>
+"""
+import time
+import random
+import getpass
+from math import sqrt
+
+words = "python awesome programming language love pronunciation life enjoy grammar pragmatic deride\
+            always meaningful creativity sapiens adventure music travel food tennis reading science\
+            technology computer physics cosmology mathematics family friend relation happiness wisdom\
+            empathy gratitude dedication joy kindness patience openness commitment curiosity caring\
+            equanimity hopefulness generosity truthfulness serenity respect insight vision sex".split()
+
+graphic0 = """  
+________    
+|      |      
+|             
+|             
+|             
+|
+"""     
+graphic1 = """
+________      
+|      |      
+|      0       
+|             
+|             
+|
+"""  
+graphic2 = """
+________      
+|      |      
+|      0       
+|     /        
+|             
+|
+"""  
+graphic3 = """
+________      
+|      |      
+|      0       
+|     / \      
+|             
+|
+"""  
+graphic4 = """
+________      
+|      |      
+|      0       
+|     /|\       
+|            
+|
+"""  
+graphic5 = """
+________      
+|      |      
+|      0       
+|     /|\       
+|      |      
+|
+"""
+graphic6 = """
+________      
+|      |      
+|      0       
+|     /|\       
+|      |      
+|     /
+|
+"""  
+graphic7 = """
+________      
+|      |      
+|      0       
+|     /|\       
+|      |      
+|     / \
+|
+|   
+"""  
+
+hang_graphics = [graphic0, graphic1, graphic2, graphic3, graphic4, graphic5, graphic6, graphic7]
+
+#game settings
+#__________________________________________________________________________________________
+def initiate_game():
+
+    if num_game == 1: #take input for the game mode only at the first game
+        print "Let's start the fun! :)"
+        print "You wanna play in which mode - single or dual mode?"
+        print "In single mode you will play with the computer"
+        print "While in dual mode, you will play with another player who will type the guessing word"
+        global game_mode
+        game_mode = raw_input("Enter '1' for single mode and '2' for dual mode ->")
+        
+        while not((game_mode == '1') or (game_mode == '2')):
+                   game_mode = raw_input("Please insert '1' or '2' here. ->")
+
+    # else:
+    #     pass #keep the previously selected game mode
+
+    if (game_mode == '1'):
+        random_word = random.choice(words)
+        inside_game_logic(random_word)
+
+    elif (game_mode == '2'):
+        #user_word = raw_input("Please enter the word for your opponent ->")
+        user_word = getpass.getpass("Please enter the word for your opponent ->")
+        user_word = user_word.lower()
+        inside_game_logic(user_word)
+
+
+def inside_game_logic(word):
+    character_remaining = word
+    num_wrong_guess = 0
+    display_word = '_' * len(word)
+    is_winner = False
+    all_guess_chars = []
+        
+    print 'Initial state: %r' % ("|".join(display_word))
+    print "You are here: ", graphic0
+
+    while num_wrong_guess < 7:
+
+        guess_char = raw_input("Guess a character/letter ->")
+        all_guess_chars.append(guess_char)
+        
+        if len(guess_char) > 1:
+            print 'Please insert a single character at a time'
+            all_guess_chars.remove(guess_char)
+
+        elif len(guess_char) < 1:
+            print 'Please insert a single character'
+            all_guess_chars.remove(guess_char)
+
+        elif guess_char in character_remaining:
+            character_remaining = character_remaining.replace(guess_char, '', 1)
+            if not(guess_char in display_word):
+                ind = word.index(guess_char)
+                display_word = display_word[:ind] + guess_char + display_word[ind + 1:]
+
+            elif guess_char in display_word: #for repeated characters; upto 4 repeatations
+                num_repeat = word.count(guess_char)
+                num_repeat_display = display_word.count(guess_char)
+
+                if ((num_repeat > 1) and (num_repeat_display == 1)):
+                    ind_all = [i for i, char in enumerate(word) if char == guess_char]
+                    display_word = display_word[:ind_all[1]] + guess_char + display_word[ind_all[1] + 1:]
+
+                elif ((num_repeat > 2) and (num_repeat_display == 2)):
+                    ind_all = [i for i, char in enumerate(word) if char == guess_char]
+                    display_word = display_word[:ind_all[2]] + guess_char + display_word[ind_all[2] + 1:]
+
+                elif ((num_repeat > 3) and (num_repeat_display == 3)):
+                    ind_all = [i for i, char in enumerate(word) if char == guess_char]
+                    display_word = display_word[:ind_all[3]] + guess_char + display_word[ind_all[3] + 1:]
+            
+            print 'Good job!'
+            print 'Current state: %r' % ("|".join(display_word))
+            print "%r percent completed!" % (100.0 - len(character_remaining) * 100 / len(word))
+                    
+            if (len(character_remaining) < 1): #condition for successfully completing the game
+                is_winner = True
+                point_scored = (sqrt(2) * len(word)) + 7 + 7 - (2 * num_wrong_guess)
+                global total_point
+                total_point += point_scored
+                print "Awesome! You won the game!!"
+                print "You're alive!! Now have some fun and smile for bit. :)"
+                print "You earned %.2f points in this game" % point_scored
+                break
+        
+        elif not(guess_char in character_remaining): #Guessed the wrong character
+            num_wrong_guess += 1
+            print "Oops, not the right guess.. :("
+            print 'Try again please'
+            print 'Current state: %r' % ("|".join(display_word))
+            print "Chance(s) remaining: %d more chances" % (7 - num_wrong_guess)
+            print "Characters guessed so far: %r" % all_guess_chars
+            print hang_graphics[num_wrong_guess]
+       
+    if not(is_winner):
+        if (game_mode == '2'):
+            print "The right word was: %s" % word
+
+        print "Game over! You will be hanged now!"
+        print "What's your last wish? What are the memories you remember at this moment??"
+
+
+
+if __name__ == '__main__':
+    
+    num_game = 0
+    total_point = 0
+    play_continue = True
+
+    while play_continue:
+        num_game += 1
+        initiate_game()
+        print "Do you want to continue playing/hanging?"
+        user_consent = raw_input("Enter 'y' to continue and 'n' to exit the game. ->") or 'y'
+        user_consent = user_consent.lower()
+
+        while not((user_consent == 'y') or (user_consent == 'n')):
+               user_consent = raw_input("Please insert 'y' or 'n' here. ->")
+
+        if user_consent == 'n':
+            play_continue = False
+            print "Your total score is %.2f points in %d games" % (total_point, num_game)
+            print "Your average score is %.3f points per game" % (1.0 * total_point / num_game)
+            print "Thanks for playing! I hope you enjoyed it. Have fun!"
