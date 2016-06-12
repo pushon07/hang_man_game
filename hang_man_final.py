@@ -195,13 +195,14 @@ def inside_game_logic(word, player_name):
         elif guess_char in char_index_dict: #if the guess is right
             num_right_guess += 1
             num_right_guess_streak += 1
-            guess_char_index = char_index_dict[guess_char]
-            if len(guess_char_index) == 1: #if guess_char occurs once
-                ind = guess_char_index[0]
-                del char_index_dict[guess_char]
+            right_guess_streaks.append(num_right_guess_streak)
+            list_guess_char_index = char_index_dict[guess_char]
+            if len(list_guess_char_index) == 1: #if guess_char occurs once
+                ind = list_guess_char_index[0]
+                del char_index_dict[guess_char] #remove the index of guessed char
 
-            elif len(guess_char_index) > 1: #else:
-                ind = random.choice(guess_char_index) #randomly select the position of any repeated char
+            elif len(list_guess_char_index) > 1: #else:
+                ind = random.choice(list_guess_char_index) #randomly select the position of any repeated char
                 char_index_dict[guess_char].remove(ind)
 
             display_word = display_word[:ind] + guess_char + display_word[ind + 1:]         
@@ -241,7 +242,6 @@ def inside_game_logic(word, player_name):
         
         elif not(guess_char in char_index_dict): #Guessed the wrong character
             num_wrong_guess += 1
-            right_guess_streaks.append(num_right_guess_streak)
             num_right_guess_streak = 0
             print ("Oops, not the right guess.. :(  Try again please.")
             print ("Current state: %s" % ("|".join(display_word)))
