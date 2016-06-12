@@ -172,13 +172,13 @@ def inside_game_logic(word, player_name):
     num_right_guess = 0
     num_wrong_guess = 0
     point_scored = 0.0
-    display_word = '_' * len(word)
     is_winner = False
     all_guess_chars = []
-    right_guess_streaks = []
     num_right_guess_streak = 0
+    max_right_guess_streak = 0
     char_index_dict = {char: [ch_ind for ch_ind, ch in enumerate(word) if ch == char] for char in word} #dictionary of unique chars and their indexes  
     
+    display_word = '_' * len(word)
     print ("Initial state: %s" % ("|".join(display_word)))
     print ("%s, you are here: " % (player_name))
     print (graphic0)
@@ -195,7 +195,9 @@ def inside_game_logic(word, player_name):
         elif guess_char in char_index_dict: #if the guess is right
             num_right_guess += 1
             num_right_guess_streak += 1
-            right_guess_streaks.append(num_right_guess_streak)
+            if num_right_guess_streak > max_right_guess_streak:
+                max_right_guess_streak = num_right_guess_streak #caculate maximum num_guess in a row
+
             list_guess_char_index = char_index_dict[guess_char]
             if len(list_guess_char_index) == 1: #if guess_char occurs once
                 ind = list_guess_char_index[0]
@@ -230,10 +232,10 @@ def inside_game_logic(word, player_name):
                 else:    
                     print ("Awesome, %s! You guessed the whole word correctly!!!!" % (player_name))
                 
-                if max(right_guess_streaks) >= 3:
-                    streak_bonus = 0.5 * max(right_guess_streaks)
+                if max_right_guess_streak >= 3:
+                    streak_bonus = 0.5 * max_right_guess_streak
                     point_scored += streak_bonus
-                    print ("Since you guessed %d characters correctly in a row, %.2f bonus points to you!" % (max(right_guess_streaks), streak_bonus))
+                    print ("Since you guessed %d characters correctly in a row, %.2f bonus points to you!" % (max_right_guess_streak, streak_bonus))
 
                 time.sleep(1)
                 print ("You're still alive!! Now have some fun and smile for a bit. :)")
