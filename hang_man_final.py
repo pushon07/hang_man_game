@@ -111,7 +111,7 @@ def initiate_game():
     '''Takes player(s) name(s), game mode, and word as input to initiate each game and return the score(s) in a list'''
     if num_game == 1: #take input for the game mode and player(s) name only at the first game
         intro_msg = '''
-Welcome to hangman(/woman) game! Here you have to guess the righ word given by the computer\
+Welcome to hangman(/woman) game! Here you have to guess the right word given by the computer\
  or your partner. You will guess a single character at a time. You will have 7 chances to guess\
  the right word. If you fail, you will be hanged to death. Wish you a thrilling time!
         '''
@@ -148,6 +148,10 @@ Welcome to hangman(/woman) game! Here you have to guess the righ word given by t
         time.sleep(1)
         word = get_word(player1_name, player2_name)
         point_scored = inside_game_logic(word, player1_name)
+        if (point_scored == -1): # if the word is grammatically incorrect
+            print ("Sorry %s, as you provided an incorrect word in the the last game, you have to provide the word again." % (player2_name))
+            word = get_word(player1_name, player2_name)
+            point_scored = inside_game_logic(word, player1_name)
         game_points.append(point_scored)
 
         print ("Now it's %s's turn." % (player2_name))
@@ -219,15 +223,15 @@ def inside_game_logic(word, player_name):
 
                 if num_wrong_guess == 0:
                     point_scored += 5
-                    print ("Unbelievable %s, you guessed the whole word without losing any chances!!" % (player_name))
+                    print ("\nUnbelievable %s, you guessed the whole word without losing any chances!!" % (player_name))
                     print ("You got 5 bonus points for making the perfect guess!")
                 elif num_wrong_guess == 1:
                     point_scored += 3
-                    print ("Incredible %s, you guessed the whole word by losing just 1 chance!" % (player_name))
+                    print ("\nIncredible %s, you guessed the whole word by losing just 1 chance!" % (player_name))
                     print ("You got 3 bonus points for making that awesome guess!")
                 elif num_wrong_guess == 2:
                     point_scored += 2
-                    print ("Wow %s, you guessed the whole word by losing only 2 chances!" % (player_name))
+                    print ("\nWow %s, you guessed the whole word by losing only 2 chances!" % (player_name))
                     print ("You got 2 bonus points for making that solid guess!")
                 else:    
                     print ("Awesome, %s! You guessed the whole word correctly!!!!" % (player_name))
@@ -238,7 +242,7 @@ def inside_game_logic(word, player_name):
                     print ("Since you guessed %d characters correctly in a row, %.2f bonus points to you!" % (max_right_guess_streak, streak_bonus))
 
                 time.sleep(1)
-                print ("You're still alive!! Now have some fun and smile for a bit. :)")
+                print ("\nYou're still alive!! Now have some fun and smile for a bit. :)")
                 print ("%s earned %.2f points in this game" % (player_name, point_scored))
                 break
         
@@ -260,18 +264,33 @@ def inside_game_logic(word, player_name):
             print (hang_graphics[num_wrong_guess])
        
     if not(is_winner):
+
+        def final_message():
+            '''Show message to current player is he/she failed to guess the correct word'''
+            if (num_right_guess * 100.0 / len(word)) > 70:
+                point_scored = sqrt(3 * len(word)) * (num_right_guess * 1.0 / len(word))
+                print ("Since %s guessed more than 70 percent of the word correctly, he/she scored a bit." % (player_name))
+                print ("%s earned %.2f points in this game" % (player_name, point_scored))
+
+                print ("Game over! You will be hanged now!")
+                print ("What's your last wish, Mr/Ms %s? What are the memories you remember at this moment??" % (player_name))
+
         if (game_mode == '2'):
             print ("The right word was: %s" % (word))
             time.sleep(1)
 
-        if (num_right_guess * 100.0 / len(word)) > 70:
-            point_scored = sqrt(3 * len(word)) * (num_right_guess * 1.0 / len(word))
-            print ("Since %s guessed more than 70 percent of the word correctly, he/she scored a bit." % (player_name))
-            print ("%s earned %.2f points in this game" % (player_name, point_scored))
+            print ("Now %s and %s, do you agree that '%s' is a valid word in english language?" % (player1_name, player2_name, word))
+            players_consent = take_input("Enter 'y' if yes or 'n' if not(default value is 'y') >", default_value='y')
+            while not((players_consent == 'y') or (players_consent == 'n')):
+               players_consent = take_input("Please insert 'y' or 'n' here. ->")
+            if players_consent == 'n': #
+                point_scored = -1
+            else:
+                final_message()
 
-        print ("Game over! You will be hanged now!")
-        print ("What's your last wish, Mr/Ms %s? What are the memories you remember at this moment??" % (player_name))
-        
+        else:   #game_mode == '1'
+            final_message()
+
     return point_scored
 
 
@@ -286,8 +305,8 @@ if __name__ == '__main__':
         game_points = initiate_game()
         all_points += game_points
 
-        print ("Do you want to continue playing/hanging?")
-        user_consent = take_input("Enter 'y' to continue and 'n' to exit the game. ->", default_value='y')
+        print ("\nDo you want to continue playing/hanging?")
+        user_consent = take_input("Enter 'y' to continue or 'n' to exit the game. ->", default_value='y')
         user_consent = user_consent.lower()
 
         while not((user_consent == 'y') or (user_consent == 'n')):
@@ -298,7 +317,7 @@ if __name__ == '__main__':
             if (game_mode == '1'):
                 total_point = sum(all_points)
                 num_game_won = len([point for point in all_points if point > 9.07])
-                print ("Final statistics:")
+                print ("\nFinal statistics:")
                 print ("%s, you won %d games out of %d games" % (player1_name, num_game_won, num_game))
                 time.sleep(1)
                 print ("Your total score is %.2f points in %d games" % (total_point, num_game))
@@ -313,7 +332,7 @@ if __name__ == '__main__':
                 player2_total_point = sum(player2_points)
                 player2_num_game_won = len([point for point in player2_points if point > 9.07])
 
-                print ("Final statistics:")
+                print ("\nFinal statistics:")
                 print ("%s won %d games out of %d games" % (player1_name, player1_num_game_won, num_game))
                 print ("%s won %d games out of %d games" % (player2_name, player2_num_game_won, num_game))
                 time.sleep(1)
