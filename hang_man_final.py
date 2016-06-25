@@ -19,7 +19,7 @@ words = "python awesome programming language love pronunciation life enjoy gramm
             empathy gratitude dedication joy kindness patience openness commitment curiosity caring cofee sandwich litchi\
             equanimity hopefulness generosity truthfulness serenity respect insight vision sex chocolate cake apple grape\
             determination sympathy smart prudent honesty adorable philanthropist pizza noble altruist tea pineapple".split()
-words = tuple(words) # to make it more memory efficient
+words = tuple(words) # to make it immutable and more memory efficient
 
 graphic0 = """  
 ________    
@@ -28,6 +28,7 @@ ________
 |             
 |             
 |
+=========
 """     
 graphic1 = """
 ________      
@@ -36,6 +37,7 @@ ________
 |             
 |             
 |
+=========
 """  
 graphic2 = """
 ________      
@@ -44,6 +46,7 @@ ________
 |     /        
 |             
 |
+=========
 """  
 graphic3 = """
 ________      
@@ -52,6 +55,7 @@ ________
 |     / \      
 |             
 |
+=========
 """  
 graphic4 = """
 ________      
@@ -60,6 +64,7 @@ ________
 |     /|\       
 |            
 |
+=========
 """  
 graphic5 = """
 ________      
@@ -68,6 +73,7 @@ ________
 |     /|\       
 |      |      
 |
+=========
 """
 graphic6 = """
 ________      
@@ -77,6 +83,7 @@ ________
 |      |      
 |     /
 |
+=========
 """  
 graphic7 = """
 ________      
@@ -84,9 +91,9 @@ ________
 |      0       
 |     /|\       
 |      |      
-|     / \
+|     / \\
 |
-|   
+=========   
 """  
 
 hang_graphics = (graphic0, graphic1, graphic2, graphic3, graphic4, graphic5, graphic6, graphic7)
@@ -106,20 +113,22 @@ Welcome to hangman(/woman) game! Here you have to guess the right word given by 
 
         global player1_name
         player1_name = input("Please enter your name ->") or 'Harry'
+        player1_name = player1_name[0].upper() + player1_name[1:]   #make the first letter uppercase
         print("Let's start the fun! :)")
         print("Please select the game mode - single or dual mode?")
         print("In single mode you will play with the computer")
         time.sleep(2)
         print("While in dual mode, you will play with another player who will provide the guessing word")
         global game_mode
-        game_mode = input("Enter '1' for single mode and '2' for dual mode ->")
-        
+        game_mode = ''
         while not((game_mode == '1') or (game_mode == '2')):
-                   game_mode = input("Please insert '1' or '2' here. ->")
+                   game_mode = input("Enter '1' for single mode and '2' for dual mode ->")
+        
         if (game_mode == '2'):
             global player2_name
             player2_name = input("%s, please enter your opponent's name ->" % (player1_name)) or 'Hermaione'
-    
+            player2_name = player2_name[0].upper() + player2_name[1:]   #make the first letter uppercase
+
     # else:
     #     pass #keep the previously selected game mode
 
@@ -138,12 +147,11 @@ Welcome to hangman(/woman) game! Here you have to guess the right word given by 
                 word = getpass.getpass("%s, please enter a valid word consists of 2-29 characters ->" % (player2))
             word = word.lower()
             point_scored = inside_game_logic(word, player1)
+           
             while(point_scored == -1): # if the word is grammatically incorrect
                 print("Sorry %s, as you provided an incorrect word in the the last game, you have to provide a word again." % (player2))
                 word = getpass.getpass("%s, please enter the word for %s (copy/paste allowed) ->" % (player2, player1))
                 point_scored = inside_game_logic(word, player1)
-                if point_scored != -1:
-                    break
 
             game_points.append(point_scored)   
 
@@ -159,7 +167,7 @@ Welcome to hangman(/woman) game! Here you have to guess the right word given by 
 
 def inside_game_logic(word, player_name):
     '''Take the guessed chracters as input, compare them with the provided word, caculate points, display game
-    status, and give proper reward or punishment to the player according to the game's logic'''
+    status, and give proper reward to the player according to the game's logic'''
     num_right_guess = 0
     num_wrong_guess = 0
     point_scored = 0.0
@@ -177,6 +185,7 @@ def inside_game_logic(word, player_name):
     while num_wrong_guess < 7:
 
         guess_char = input("Guess a character/letter ->")
+        guess_char = guess_char.lower()
         all_guess_chars.append(guess_char)
         
         if ((guess_char == None) or (len(guess_char) != 1) or not(guess_char.isalpha())):
@@ -200,7 +209,7 @@ def inside_game_logic(word, player_name):
 
             display_word = display_word[:ind] + guess_char + display_word[ind + 1:]         
 
-            print('Good job, %s!' % (player_name))
+            print('\nGood job, %s!' % (player_name))
             print('Current state: %s' % ("|".join(display_word)))
             print('%.2f' % (num_right_guess * 100.0 / len(word)) + ('% of the word completed!'))
                     
@@ -221,7 +230,7 @@ def inside_game_logic(word, player_name):
                     print("\nWow %s, you guessed the whole word by losing only 2 chances!" % (player_name))
                     print("You got 2 bonus points for making that solid guess!")
                 else:    
-                    print("Awesome, %s! You guessed the whole word correctly!!!!" % (player_name))
+                    print("Awesome, %s! You guessed the whole word correctly!!" % (player_name))
                 
                 if max_right_guess_streak >= 3:
                     streak_bonus = 0.5 * max_right_guess_streak
@@ -236,7 +245,7 @@ def inside_game_logic(word, player_name):
         elif not(guess_char in char_index_dict): #Guessed the wrong character
             num_wrong_guess += 1
             num_right_guess_streak = 0
-            print("Oops, not the right guess.. :(  Try again please.")
+            print("\nOops, not the right guess.. :(  Try again please.")
             print("Current state: %s" % ("|".join(display_word)))
             print("Chance(s) remaining: %d more chances" % (7 - num_wrong_guess))
             print("Characters guessed so far: %r" % (all_guess_chars))
@@ -267,10 +276,8 @@ def inside_game_logic(word, player_name):
             time.sleep(1)
 
             print("Now %s and %s, do you agree that '%s' is a valid word in english language?" % (player1_name, player2_name, word))
-            players_consent = input("Enter 'y' if yes or 'n' if not(default value is 'y') >") or 'y'
-            while not((players_consent == 'y') or (players_consent == 'n')):
-               players_consent = input("Please insert 'y' or 'n' here. ->")
-            if players_consent == 'n': #
+            players_consent = input("Enter 'n' or 'no' if you do not(default value is 'yes') >")
+            if (players_consent.lower().startswith('n')): # if players agree that the given word is not a valid word
                 point_scored = -1
             else:
                 final_message()
@@ -293,13 +300,9 @@ if __name__ == '__main__':
         all_points += game_points
 
         print("\nDo you want to continue playing/hanging?")
-        user_consent = input("Enter 'y' to continue or 'n' to exit the game. ->") or 'y'
-        user_consent = user_consent.lower()
+        user_consent = input("Enter 'y' to continue or 'n' to exit the game. ->")
 
-        while not((user_consent == 'y') or (user_consent == 'n')):
-               user_consent = input("Please insert 'y' or 'n' here. ->")
-
-        if user_consent == 'n':
+        if (user_consent.lower().startswith('n')):
             play_continue = False
             if (game_mode == '1'):
                 total_point = sum(all_points)
